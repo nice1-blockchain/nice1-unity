@@ -21,6 +21,17 @@ public class Nice1LoginCanvas : MonoBehaviour
 
     #region DLL Imports
 
+#if UNITY_ANDROID
+    [DllImport("cppLib")]
+    private static extern int CheckLicense(string owner, string author, string category, string license_name, string idata_name);
+
+    [DllImport("cppLib")]
+    private static extern int CheckNice1GenesisKey(string owner, string author, string category, string license_name, string idata_name, int checkNice1GenesisKey);
+
+    [DllImport("cppLib")]
+    private static extern string CheckLicensePlugin(string owner, string author, string category, string license_name, int checkNice1GenesisKey, int network);
+
+#else
     [DllImport("Nice1Plugin", CallingConvention = CallingConvention.Cdecl)]
     private static extern int CheckLicense(string owner, string author, string category, string license_name, string idata_name);
 
@@ -29,6 +40,8 @@ public class Nice1LoginCanvas : MonoBehaviour
 
     [DllImport("Nice1Plugin", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     private static extern IntPtr CheckLicensePlugin(string owner, string author, string category, string license_name, int checkNice1GenesisKey, int network);
+
+#endif
 
     #endregion
 
@@ -236,7 +249,11 @@ public class Nice1LoginCanvas : MonoBehaviour
 
     private IEnumerator SearchAssetsByOwner(string owner)
     {
+#if UNITY_ANDROID
+        string licenseResult = CheckLicensePlugin(owner, AUTHOR, CATEGORY, IDATA_NAME, Convert.ToInt32(checkNice1GenesisKey_bool), (int)network);
+#else
         string licenseResult = Marshal.PtrToStringAnsi(CheckLicensePlugin(owner, AUTHOR, CATEGORY, IDATA_NAME, Convert.ToInt32(checkNice1GenesisKey_bool), (int)network));
+#endif
 
         Debug.Log(licenseResult);
         if (licenseResult == "LICENSE" || licenseResult == "NICE1KEY")
@@ -280,6 +297,6 @@ public class Nice1LoginCanvas : MonoBehaviour
         ShowUser();*/
     }
 
-    #endregion
+#endregion
 }
 
